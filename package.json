@@ -12,6 +12,7 @@
     "node": ">=4.2.*"
   },
   "dependencies": {
+    "d3": "^3.5.9",
     "eventemitter2": "^0.4.14",
     "jquery": "^2.1.4",
     "jquery-ui": "^1.10.5",

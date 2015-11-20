@@ -4,19 +4,19 @@ var plugins = require('./plugins');
 var load = require('./load');
 
 window.addEventListener('load', function(e) {
-	load(function(err, milkcocoa) {
+	load(function(err, milkcocoa, pathlist) {
 		if(err) {
 			throw err;
 		}
-		init(milkcocoa);
+		init(milkcocoa, pathlist);
 	});
 });
 
-function init(milkcocoa) {
+function init(milkcocoa, pathlist) {
 	var panelWrapper = new PanelWrapper('panel-wrapper');
 	var btn = document.getElementById('show-create-panel-modal-btn');
 	btn.addEventListener('click', function(e) {
-		showCreatePanelModal(function(values) {
+		showCreatePanelModal(pathlist, function(values) {
 			var panel = new PanelWrapper.Panel();
 			panel.setTitle(values.name);
 			var widgets = plugins.widgets.filter(function(w) {return w.name==values.type;});
@@ -30,10 +30,9 @@ function init(milkcocoa) {
 	});	
 }
 
-function showCreatePanelModal(cb) {
+function showCreatePanelModal(pathlist, cb) {
 	var widgetNames = plugins.widgets.map(function(w) {return w.name;});
-	//var modal = new CreatePanelModal({pathlist:['aaa', 'bbb']});
-	var modal = new CreatePanelModal({widgetNames : widgetNames});
+	var modal = new CreatePanelModal({widgetNames : widgetNames, pathlist : pathlist});
 	modal.ok(cb);
 	modal.open();
 }

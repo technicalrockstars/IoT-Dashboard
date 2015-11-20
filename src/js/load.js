@@ -18,17 +18,19 @@ module.exports = function(cb) {
 function init(app_id, mode, cb) {
     var milkcocoa = new MilkCocoa(app_id + ".mlkcca.com");
     if(mode == 'private') {
-	    milkcocoa.user(function(err, user) {
-	        if(!user) {
-	            get_admin_token(function(data) {
-	                milkcocoa.authAsAdmin(data.token, function() {
-	                	cb(null, milkcocoa);
-	                });
-	            })
-	        }else{
-	        	cb(null, milkcocoa);
-	        }
-	    });
+		get_pathlist(app_id, function(r) {
+		    milkcocoa.user(function(err, user) {
+		        if(!user) {
+		            get_admin_token(function(data) {
+		                milkcocoa.authAsAdmin(data.token, function() {
+		                	cb(null, milkcocoa, r.content);
+		                });
+		            })
+		        }else{
+		        	cb(null, milkcocoa, r.content);
+		        }
+		    });
+		});
     }else{
     	cb(null, milkcocoa);
     }
@@ -60,6 +62,32 @@ function get_admin_token(cb) {
           }
     });        
 }
+
+function get_pathlist(app_id, cb) {
+    jQuery.ajax({
+          type: 'GET',
+          url: "https://"+app_id+".mlkcca.com/dev",
+          dataType: "json",
+          data: {
+          	cmd : 'pathlist2',
+          	appid : app_id
+          },
+          xhrFields: {
+               withCredentials: true
+          },
+          crossDomain: true,
+          beforeSend: function(xhr) {
+
+          },
+          success: function(response){
+                cb(response);
+          },
+          error: function (xhr) {
+                cb(xhr.responseJSON);
+          }
+    });        
+}
+
 
 function query2string(params) {
 	return Object.keys(params).map(function(k) {

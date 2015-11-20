@@ -129,5 +129,6 @@ var tasks = [
   'watch'
 ];
 
+gulp.task('build', ['move-html', 'css', 'script']);
 gulp.task('default', tasks);
 gulp.task('first', tasks.concat(['move-img', 'move-fonts']));
