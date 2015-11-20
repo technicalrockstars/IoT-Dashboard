@@ -19080,28 +19080,36 @@ module.exports = function(cb) {
 	if(hash) {
 		//private
 		var params = parsequery(hash);
-		init(params.app_id, params.mode, params.as, cb);
+		init(params.app_id, params.mode, cb);
 	}else{
 		cb(new Error("app_id not found"));
 	}
 }
 
-function init(app_id, mode, app_server, cb) {
+function getItem(key) {
+    var str = localStorage.getItem(key);
+    try{
+      return JSON.parse(str);
+    }catch(e){
+      return [];
+    }
+}
+
+function init(app_id, mode, cb) {
     var milkcocoa = new MilkCocoa(app_id + ".mlkcca.com");
     if(mode == 'private') {
-		get_pathlist(app_server, app_id, function(r) {
-		    milkcocoa.user(function(err, user) {
-		        if(!user) {
-		            get_admin_token(function(data) {
-		                milkcocoa.authAsAdmin(data.token, function() {
-		                	cb(null, milkcocoa, r.content);
-		                });
-		            })
-		        }else{
-		        	cb(null, milkcocoa, r.content);
-		        }
-		    });
-		});
+        var pathlist = getItem('mlkcca.'+app_id+'.pathlist');
+        milkcocoa.user(function(err, user) {
+            if(!user) {
+                get_admin_token(function(data) {
+                    milkcocoa.authAsAdmin(data.token, function() {
+                      cb(null, milkcocoa, pathlist);
+                    });
+                })
+            }else{
+              cb(null, milkcocoa, pathlist);
+            }
+        });
     }else{
     	cb(null, milkcocoa);
     }
