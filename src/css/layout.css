@@ -1,0 +1,40 @@
+* {
+  box-sizing: border-box;
+}
+*:before, *:after {
+  box-sizing: border-box;
+}
+body{
+  font-family:"游ゴシック",YuGothic,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,Arial,sans-serif;
+  font-size: $font_size;
+  background-color: $background_color;
+  line-height: 1.8;
+  color: $main_text_color;
+}
+
+
+.ss-wrapper{
+	padding: 6px;
+}
+
+.ss-header{
+
+}
+
+.ss-header h1 {
+	font-size: 24px;
+	padding: 4px;
+	margin: 5px;
+}
+
+.ss-container{
+
+}
+
+.ss-panel{
+
+}
+
+.ss-panel-header{
+	font-size: 20px;
+}

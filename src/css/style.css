@@ -1,1 +1,10 @@
-style.css
+@import "vars.css";
+
+/* ==========================================================================
+   Foundation
+   ========================================================================== */
+
+@import "layout.css";
+
+@import "components/modal.css";
+@import "components/panel.css";
