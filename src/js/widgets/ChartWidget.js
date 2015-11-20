@@ -4,6 +4,19 @@ function ChartWidget(datastore) {
 	var that = this;
 	this.data = [];
 	this.elem = document.createElement('div');
+
+	var keyForm = document.createElement('div');
+	var keyLabel = document.createElement('span');
+	this.input = document.createElement('input');
+	this.input.type = 'text';
+	keyLabel.textContent = 'Value:';
+	keyForm.appendChild(keyLabel);
+	keyForm.appendChild(this.input);
+	this.elem.appendChild(keyForm);
+	this.input.addEventListener('change', function(e) {
+		that.refersh();
+	});
+
 	this.datastore = datastore;
 	var history = this.datastore.history();
 	history.limit(20).on('data', function(data) {
@@ -13,10 +26,17 @@ function ChartWidget(datastore) {
 	});
 	history.run();
 	this.datastore.on('push', function(e) {
-		that.elem.textContent = JSON.stringify(e);
+		that.data.push(data);
+		that.data.shift();
+		that.updateDraw();
 	});
-	this.init();
+	this.initChart();
 }
+
+ChartWidget.prototype.refersh = function() {
+	this.initialDraw();
+}
+
 
 ChartWidget.prototype.getEl = function() {
 	return this.elem;
@@ -24,11 +44,17 @@ ChartWidget.prototype.getEl = function() {
 
 
 // datastoreのデータを、描画用のデータに変換する
-function get_graph_data(data){
+ChartWidget.prototype.get_graph_data = function(data){
+	var that = this;
+	if(data[0] && this.input.value=='') {
+		var filterd = Object.keys(data[0].value).filter(function(k) {return ((typeof data[0].value[k]) == 'number');});
+		var key = filterd[0];
+		this.input.value = key;
+	}
 	return data.map(function(d) {
 		return {
 			date : new Date(d.timestamp),
-			value : d.value
+			value : d.value[that.input.value]
 		};
 	});
 }
@@ -39,11 +65,11 @@ ChartWidget.prototype.setDatas = function(data) {
 }
 
 // 初期化
-ChartWidget.prototype.init = function() {
+ChartWidget.prototype.initChart = function() {
 
 	// 描画範囲に関する変数
 	var margin = {top: 20, right: 20, bottom: 30, left: 50},
-	    width = 1040 - margin.left - margin.right,
+	    width = 480 - margin.left - margin.right,
 	    height = 420 - margin.top - margin.bottom;
 
 	// x軸のスケール（時間）。レンジ(出力範囲)の指定
@@ -100,7 +126,7 @@ ChartWidget.prototype.init = function() {
 // 最初の描画
 ChartWidget.prototype.initialDraw = function() {
 
-	var dataset = get_graph_data(this.data);
+	var dataset = this.get_graph_data(this.data);
 
 	// ドメイン（入力値の範囲）の設定、extentメソッドでdatasetの最小と最大を返す
 	this.xScale.domain(d3.extent(dataset, function(d) { return d.date; }));
@@ -134,7 +160,7 @@ ChartWidget.prototype.initialDraw = function() {
 // 更新した際の描画
 ChartWidget.prototype.updateDraw = function() {
 
-	var dataset = get_graph_data(this.data);
+	var dataset = this.get_graph_data(this.data);
 
 	// ドメイン（入力値の範囲）の更新
 	this.xScale.domain(d3.extent(dataset, function(d) { return d.date; }));

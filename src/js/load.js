@@ -9,16 +9,16 @@ module.exports = function(cb) {
 	if(hash) {
 		//private
 		var params = parsequery(hash);
-		init(params.app_id, params.mode, cb);
+		init(params.app_id, params.mode, params.as, cb);
 	}else{
 		cb(new Error("app_id not found"));
 	}
 }
 
-function init(app_id, mode, cb) {
+function init(app_id, mode, app_server, cb) {
     var milkcocoa = new MilkCocoa(app_id + ".mlkcca.com");
     if(mode == 'private') {
-		get_pathlist(app_id, function(r) {
+		get_pathlist(app_server, app_id, function(r) {
 		    milkcocoa.user(function(err, user) {
 		        if(!user) {
 		            get_admin_token(function(data) {
@@ -63,10 +63,10 @@ function get_admin_token(cb) {
     });        
 }
 
-function get_pathlist(app_id, cb) {
+function get_pathlist(url, app_id, cb) {
     jQuery.ajax({
           type: 'GET',
-          url: "https://"+app_id+".mlkcca.com/dev",
+          url: "https://"+url+"/dev",
           dataType: "json",
           data: {
           	cmd : 'pathlist2',
@@ -99,7 +99,7 @@ function parsequery(str) {
 	var params = {};
 	str.split('&').forEach(function(s) {
 		var ss = s.split('=');
-		params[ss[0]] = ss[1];
+		params[ss[0]] = window.decodeURIComponent(ss[1]);
 	});
 	return params;
 }

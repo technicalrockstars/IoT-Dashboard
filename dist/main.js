@@ -19028,7 +19028,7 @@ function PanelWrapper(id) {
 }
 
 PanelWrapper.prototype.append = function(panel) {
-	if((this.panels.length % 3) == 0) {
+	if((this.panels.length % 2) == 0) {
 		var section = document.createElement('div');
 		section.classList.add('ss-panel-section');
 		section.classList.add('ss-panel-group');
@@ -19080,16 +19080,16 @@ module.exports = function(cb) {
 	if(hash) {
 		//private
 		var params = parsequery(hash);
-		init(params.app_id, params.mode, cb);
+		init(params.app_id, params.mode, params.as, cb);
 	}else{
 		cb(new Error("app_id not found"));
 	}
 }
 
-function init(app_id, mode, cb) {
+function init(app_id, mode, app_server, cb) {
     var milkcocoa = new MilkCocoa(app_id + ".mlkcca.com");
     if(mode == 'private') {
-		get_pathlist(app_id, function(r) {
+		get_pathlist(app_server, app_id, function(r) {
 		    milkcocoa.user(function(err, user) {
 		        if(!user) {
 		            get_admin_token(function(data) {
@@ -19134,10 +19134,10 @@ function get_admin_token(cb) {
     });        
 }
 
-function get_pathlist(app_id, cb) {
+function get_pathlist(url, app_id, cb) {
     jQuery.ajax({
           type: 'GET',
-          url: "https://"+app_id+".mlkcca.com/dev",
+          url: "https://"+url+"/dev",
           dataType: "json",
           data: {
           	cmd : 'pathlist2',
@@ -19170,7 +19170,7 @@ function parsequery(str) {
 	var params = {};
 	str.split('&').forEach(function(s) {
 		var ss = s.split('=');
-		params[ss[0]] = ss[1];
+		params[ss[0]] = window.decodeURIComponent(ss[1]);
 	});
 	return params;
 }
@@ -19234,6 +19234,19 @@ function ChartWidget(datastore) {
 	var that = this;
 	this.data = [];
 	this.elem = document.createElement('div');
+
+	var keyForm = document.createElement('div');
+	var keyLabel = document.createElement('span');
+	this.input = document.createElement('input');
+	this.input.type = 'text';
+	keyLabel.textContent = 'Value:';
+	keyForm.appendChild(keyLabel);
+	keyForm.appendChild(this.input);
+	this.elem.appendChild(keyForm);
+	this.input.addEventListener('change', function(e) {
+		that.refersh();
+	});
+
 	this.datastore = datastore;
 	var history = this.datastore.history();
 	history.limit(20).on('data', function(data) {
@@ -19243,10 +19256,17 @@ function ChartWidget(datastore) {
 	});
 	history.run();
 	this.datastore.on('push', function(e) {
-		that.elem.textContent = JSON.stringify(e);
+		that.data.push(data);
+		that.data.shift();
+		that.updateDraw();
 	});
-	this.init();
+	this.initChart();
 }
+
+ChartWidget.prototype.refersh = function() {
+	this.initialDraw();
+}
+
 
 ChartWidget.prototype.getEl = function() {
 	return this.elem;
@@ -19254,11 +19274,17 @@ ChartWidget.prototype.getEl = function() {
 
 
 // datastoreのデータを、描画用のデータに変換する
-function get_graph_data(data){
+ChartWidget.prototype.get_graph_data = function(data){
+	var that = this;
+	if(data[0] && this.input.value=='') {
+		var filterd = Object.keys(data[0].value).filter(function(k) {return ((typeof data[0].value[k]) == 'number');});
+		var key = filterd[0];
+		this.input.value = key;
+	}
 	return data.map(function(d) {
 		return {
 			date : new Date(d.timestamp),
-			value : d.value
+			value : d.value[that.input.value]
 		};
 	});
 }
@@ -19269,11 +19295,11 @@ ChartWidget.prototype.setDatas = function(data) {
 }
 
 // 初期化
-ChartWidget.prototype.init = function() {
+ChartWidget.prototype.initChart = function() {
 
 	// 描画範囲に関する変数
 	var margin = {top: 20, right: 20, bottom: 30, left: 50},
-	    width = 1040 - margin.left - margin.right,
+	    width = 480 - margin.left - margin.right,
 	    height = 420 - margin.top - margin.bottom;
 
 	// x軸のスケール（時間）。レンジ(出力範囲)の指定
@@ -19330,7 +19356,7 @@ ChartWidget.prototype.init = function() {
 // 最初の描画
 ChartWidget.prototype.initialDraw = function() {
 
-	var dataset = get_graph_data(this.data);
+	var dataset = this.get_graph_data(this.data);
 
 	// ドメイン（入力値の範囲）の設定、extentメソッドでdatasetの最小と最大を返す
 	this.xScale.domain(d3.extent(dataset, function(d) { return d.date; }));
@@ -19364,7 +19390,7 @@ ChartWidget.prototype.initialDraw = function() {
 // 更新した際の描画
 ChartWidget.prototype.updateDraw = function() {
 
-	var dataset = get_graph_data(this.data);
+	var dataset = this.get_graph_data(this.data);
 
 	// ドメイン（入力値の範囲）の更新
 	this.xScale.domain(d3.extent(dataset, function(d) { return d.date; }));

@@ -5,7 +5,7 @@ function PanelWrapper(id) {
 }
 
 PanelWrapper.prototype.append = function(panel) {
-	if((this.panels.length % 3) == 0) {
+	if((this.panels.length % 2) == 0) {
 		var section = document.createElement('div');
 		section.classList.add('ss-panel-section');
 		section.classList.add('ss-panel-group');
