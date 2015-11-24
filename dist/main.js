@@ -18775,13 +18775,6 @@ CreatePanelModal.prototype.createBody = function() {
 	var that = this;
 	var body = document.createElement('div');
 	body.appendChild(this.createTextBox('Name', {defaultValue : 'Untitled Panel'}));
-	var widgetNames = this.options.widgetNames.map(function(name) {
-			return {
-				displayText : name,
-				value : name
-			}
-		});
-	body.appendChild(this.createSelectBox('Type', {options : widgetNames, defaultValue : 'text'}));
 	if(this.options.pathlist) {
 		var options = this.options.pathlist.map(function(path) {
 			return {
@@ -18793,6 +18786,15 @@ CreatePanelModal.prototype.createBody = function() {
 	}else{
 		body.appendChild(this.createTextBox('DataStore', {defaultValue : 'datastore'}));
 	}
+	var widgetNames = this.options.widgetNames.map(function(name) {
+			return {
+				displayText : name,
+				value : name
+			}
+		});
+	body.appendChild(this.createSelectBox('Type', {options : widgetNames, defaultValue : 'text'}));
+	
+
 	return body;
 }
 
@@ -19252,18 +19254,17 @@ function ChartWidget(datastore) {
 	keyForm.appendChild(this.input);
 	this.elem.appendChild(keyForm);
 	this.input.addEventListener('change', function(e) {
-		that.refersh();
+		that.updateDraw();
 	});
 
 	this.datastore = datastore;
 	var history = this.datastore.history();
 	history.limit(20).on('data', function(data) {
-		console.log(data);
 		that.data = data;
 		that.initialDraw();
 	});
 	history.run();
-	this.datastore.on('push', function(e) {
+	this.datastore.on('push', function(data) {
 		that.data.push(data);
 		that.data.shift();
 		that.updateDraw();
@@ -19405,17 +19406,17 @@ ChartWidget.prototype.updateDraw = function() {
 	this.yScale.domain(d3.extent(dataset, function(d) { return d.value; }));
 
 	// アニメーションしますよ、という宣言
-	this.svg = d3.select("#" + this.wrapper_id).transition();
+	var svg = this.svg.transition();
 
-	this.svg.select(".line")   // 折れ線を
+	svg.select(".line")   // 折れ線を
 	    .duration(750) // 750msで
 	    .attr("d", this.line(dataset)); // （新しい）datasetに変化させる描画をアニメーション
 
-	this.svg.select(".x.axis") // x軸を
+	svg.select(".x.axis") // x軸を
 	    .duration(750) // 750msで
 	    .call(this.xAxis); // （domainの変更によって変化した）xAxisに変化させる描画をアニメーション
 
-	this.svg.select(".y.axis") // y軸を
+	svg.select(".y.axis") // y軸を
 	    .duration(750) // 750msで
 	    .call(this.yAxis); // （domainの変更によって変化した）yAxisに変化させる描画をアニメーション
 }
