@@ -11,13 +11,6 @@ CreatePanelModal.prototype.createBody = function() {
 	var that = this;
 	var body = document.createElement('div');
 	body.appendChild(this.createTextBox('Name', {defaultValue : 'Untitled Panel'}));
-	var widgetNames = this.options.widgetNames.map(function(name) {
-			return {
-				displayText : name,
-				value : name
-			}
-		});
-	body.appendChild(this.createSelectBox('Type', {options : widgetNames, defaultValue : 'text'}));
 	if(this.options.pathlist) {
 		var options = this.options.pathlist.map(function(path) {
 			return {
@@ -29,6 +22,15 @@ CreatePanelModal.prototype.createBody = function() {
 	}else{
 		body.appendChild(this.createTextBox('DataStore', {defaultValue : 'datastore'}));
 	}
+	var widgetNames = this.options.widgetNames.map(function(name) {
+			return {
+				displayText : name,
+				value : name
+			}
+		});
+	body.appendChild(this.createSelectBox('Type', {options : widgetNames, defaultValue : 'text'}));
+	
+
 	return body;
 }
 
