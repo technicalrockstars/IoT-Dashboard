@@ -3,13 +3,15 @@
  * @param mode: private || public
  */
 var jQuery = require('jquery');
+var DashboardModel = require('./dashboardModel');
 
 module.exports = function(cb) {
 	var hash = window.location.hash.substr(1);
 	if(hash) {
 		//private
 		var params = parsequery(hash);
-		init(params.app_id, params.mode, cb);
+    var dashboardModel = new DashboardModel(params.app_id, params.mode, params.db);
+		init(dashboardModel, cb);
 	}else{
 		cb(new Error("app_id not found"));
 	}
@@ -24,23 +26,23 @@ function getItem(key) {
     }
 }
 
-function init(app_id, mode, cb) {
-    var milkcocoa = new MilkCocoa(app_id + ".mlkcca.com");
-    if(mode == 'private') {
-        var pathlist = getItem('mlkcca.'+app_id+'.pathlist');
+function init(dashboardModel, cb) {
+    var milkcocoa = new MilkCocoa(dashboardModel.app_id + ".mlkcca.com");
+    if(dashboardModel.mode == 'private') {
+        var pathlist = getItem('mlkcca.'+dashboardModel.app_id+'.pathlist');
         milkcocoa.user(function(err, user) {
             if(!user) {
                 get_admin_token(function(data) {
                     milkcocoa.authAsAdmin(data.token, function() {
-                      cb(null, milkcocoa, pathlist);
+                      cb(null, milkcocoa, pathlist, dashboardModel);
                     });
                 })
             }else{
-              cb(null, milkcocoa, pathlist);
+              cb(null, milkcocoa, pathlist, dashboardModel);
             }
         });
     }else{
-    	cb(null, milkcocoa);
+    	cb(null, milkcocoa, undefined, dashboardModel);
     }
 }
 
@@ -96,13 +98,6 @@ function get_pathlist(url, app_id, cb) {
     });        
 }
 
-
-function query2string(params) {
-	return Object.keys(params).map(function(k) {
-		return k + '=' + params[k]
-	}).join('&');
-}
-
 function parsequery(str) {
 	var params = {};
 	str.split('&').forEach(function(s) {
@@ -111,3 +106,10 @@ function parsequery(str) {
 	});
 	return params;
 }
+
+
+
+
+
+
+

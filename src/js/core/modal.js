@@ -19,7 +19,7 @@ function Modal(options) {
 	header.classList.add('jsmodal__header');
 	body.classList.add('jsmodal__body');
 	footer.classList.add('jsmodal__footer');
-	header.textContent = this.options || 'Untitled Modal';
+	header.textContent = this.options.title || 'Untitled Modal';
 	cancelButton.textContent = 'Cancel';
 	okButton.textContent = 'OK';
 	cancelButton.classList.add('jsmodal__btn');

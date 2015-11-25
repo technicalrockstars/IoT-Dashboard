@@ -5,17 +5,7 @@ function ChartWidget(datastore) {
 	this.data = [];
 	this.elem = document.createElement('div');
 
-	var keyForm = document.createElement('div');
-	var keyLabel = document.createElement('span');
-	this.input = document.createElement('input');
-	this.input.type = 'text';
-	keyLabel.textContent = 'Value:';
-	keyForm.appendChild(keyLabel);
-	keyForm.appendChild(this.input);
-	this.elem.appendChild(keyForm);
-	this.input.addEventListener('change', function(e) {
-		that.updateDraw();
-	});
+	this.value = null;
 
 	this.datastore = datastore;
 	var history = this.datastore.history();
@@ -32,10 +22,24 @@ function ChartWidget(datastore) {
 	this.initChart();
 }
 
+ChartWidget.prototype.settings = function() {
+	return {
+		'value' : {
+			type : 'text',
+			value : this.value
+		}
+	};
+}
+
+ChartWidget.prototype.onSettingsUpdated = function(result) {
+	this.value = result.value;
+	this.updateDraw();
+}
+
+
 ChartWidget.prototype.refersh = function() {
 	this.initialDraw();
 }
-
 
 ChartWidget.prototype.getEl = function() {
 	return this.elem;
@@ -45,15 +49,15 @@ ChartWidget.prototype.getEl = function() {
 // datastoreのデータを、描画用のデータに変換する
 ChartWidget.prototype.get_graph_data = function(data){
 	var that = this;
-	if(data[0] && this.input.value=='') {
+	if(data[0] && this.value==null) {
 		var filterd = Object.keys(data[0].value).filter(function(k) {return ((typeof data[0].value[k]) == 'number');});
 		var key = filterd[0];
-		this.input.value = key;
+		this.value = key;
 	}
 	return data.map(function(d) {
 		return {
 			date : new Date(d.timestamp),
-			value : d.value[that.input.value]
+			value : d.value[that.value]
 		};
 	});
 }
