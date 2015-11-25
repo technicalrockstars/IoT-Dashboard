@@ -7,6 +7,14 @@ function TextWidget(datastore) {
 	});
 }
 
+TextWidget.prototype.settings = function() {
+	return {
+	};
+}
+
+TextWidget.prototype.onSettingsUpdated = function(result) {
+}
+
 TextWidget.prototype.getEl = function() {
 	return this.elem;
 }
