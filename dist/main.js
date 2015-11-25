@@ -18848,11 +18848,84 @@ CreatePanelModal.prototype.ok = function(cb) {
 }
 
 module.exports = CreatePanelModal;
-},{"./core/modal":4}],4:[function(require,module,exports){
+},{"./core/modal":5}],4:[function(require,module,exports){
+var Modal = require('./core/modal');
+
+function SettingModal(options) {
+	this.inputs = {};
+	this.options = options;
+	this.modal = new Modal({title : 'Settings'});
+	this.modal.setBody( this.createBody() );
+}
+
+SettingModal.prototype.createBody = function() {
+	var that = this;
+	var body = document.createElement('div');
+	this.body = body;
+	return body;
+}
+
+SettingModal.prototype.setSettingsSchema = function(schema) {
+	for(var key in schema) {
+		this.body.appendChild(this.createTextBox(key, {defaultValue : schema[key].value}));
+	}
+}
+
+SettingModal.prototype.createTextBox = function(name, options) {
+	var that = this;
+	var form = document.createElement('div');
+	var label = document.createElement('span');
+	var input = document.createElement('input');
+	label.textContent = name;
+	input.type = 'text';
+	input.value = options.defaultValue || '';
+	form.appendChild(label);
+	form.appendChild(input);
+	that.inputs[name] = input;
+	return form;
+}
+
+SettingModal.prototype.createSelectBox = function(name, options) {
+	var that = this;
+	var form = document.createElement('div');
+	var label = document.createElement('span');
+	var selectElem = document.createElement('select');
+	label.textContent = name;
+	options.options.forEach(function(o) {
+		var optionElem = document.createElement('option');
+		optionElem.textContent = o.displayText;
+		optionElem.value = o.value;
+		selectElem.appendChild(optionElem);
+	});
+	selectElem.value = options.defaultValue;
+	form.appendChild(label);
+	form.appendChild(selectElem);
+	that.inputs[name] = selectElem;
+	return form;
+}
+
+
+SettingModal.prototype.open = function() {
+	this.modal.open();
+}
+
+SettingModal.prototype.ok = function(cb) {
+	var that = this;
+	this.modal.ok(function() {
+		var result = {};
+		Object.keys(that.inputs).map(function(k) {
+			result[k] = that.inputs[k].value;
+		})
+		cb(result);
+	});
+}
+
+module.exports = SettingModal;
+},{"./core/modal":5}],5:[function(require,module,exports){
 
 function Modal(options) {
 	var that = this;
-	this.options = options;
+	this.options = options || {};
 	var elem = document.createElement('div');
 	var overlap = window.document.createElement("div");
 	overlap.classList.add('jsmodal__screen');
@@ -18870,7 +18943,7 @@ function Modal(options) {
 	header.classList.add('jsmodal__header');
 	body.classList.add('jsmodal__body');
 	footer.classList.add('jsmodal__footer');
-	header.textContent = this.options || 'Untitled Modal';
+	header.textContent = this.options.title || 'Untitled Modal';
 	cancelButton.textContent = 'Cancel';
 	okButton.textContent = 'OK';
 	cancelButton.classList.add('jsmodal__btn');
@@ -19022,7 +19095,7 @@ Modal.prototype.close = function() {
 }
 
 module.exports = Modal;
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 function PanelWrapper(id) {
 	this.elem = document.getElementById(id);
 	this.panels = [];
@@ -19044,23 +19117,37 @@ PanelWrapper.prototype.append = function(panel) {
 };
 
 function Panel() {
+	var that = this;
 	this.elem = document.createElement('div');
 	this.elem.classList.add('ss-panel-col');
 	this.elem.classList.add('ss-panel-span_1_of_3');
-	this.header = document.createElement('div');
-	this.header.classList.add('ss-panel-header');
+	var header = document.createElement('div');
+	header.classList.add('ss-panel-header');
 	this.body = document.createElement('div');
 	this.body.classList.add('ss-panel-body');
-	this.elem.appendChild(this.header);
+	this.elem.appendChild(header);
 	this.elem.appendChild(this.body);
+
+	this.title = document.createElement('span');
+	var settingBtn = document.createElement('button');
+	settingBtn.textContent = 'Setting';
+	settingBtn.addEventListener('click', function(e) {
+		that.onSettingListener();
+	});
+	header.appendChild(this.title);
+	header.appendChild(settingBtn);
 }
 
 Panel.prototype.setTitle = function(title) {
-	this.header.textContent = title;
+	this.title.textContent = title;
 }
 
 Panel.prototype.setBody = function(body) {
 	this.body.appendChild(body);
+}
+
+Panel.prototype.onSetting = function(cb) {
+	this.onSettingListener = cb;
 }
 
 Panel.prototype.getEl = function() {
@@ -19070,19 +19157,95 @@ Panel.prototype.getEl = function() {
 PanelWrapper.Panel = Panel;
 
 module.exports = PanelWrapper;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+function DashboardModel(app_id, mode, dashboard) {
+	this.app_id = app_id;
+	this.mode = mode;
+	this.dashboard = dashboard?JSON.parse(base64decode(dashboard)):[];
+}
+
+DashboardModel.prototype.share = function() {
+	window.open(location.pathname + '#' + query2string({
+		app_id : this.app_id,
+		mode : 'public',
+		db : base64encode(JSON.stringify(this.dashboard))
+	}));
+}
+
+DashboardModel.prototype.addWidget = function(name, path, type) {
+	this.dashboard.push({
+		name : name,
+		datastore : path,
+		type : type
+	});
+}
+
+module.exports = DashboardModel;
+
+function query2string(params) {
+	return Object.keys(params).map(function(k) {
+		return k + '=' + params[k]
+	}).join('&');
+}
+
+var base64list = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+function base64encode(s)
+{
+  var t = '', p = -6, a = 0, i = 0, v = 0, c;
+
+  while ( (i < s.length) || (p > -6) ) {
+    if ( p < 0 ) {
+      if ( i < s.length ) {
+        c = s.charCodeAt(i++);
+        v += 8;
+      } else {
+        c = 0;
+      }
+      a = ((a&255)<<8)|(c&255);
+      p += 8;
+    }
+    t += base64list.charAt( ( v > 0 )? (a>>p)&63 : 64 )
+    p -= 6;
+    v -= 6;
+  }
+  return t;
+}
+
+function base64decode(s)
+{
+  var t = '', p = -8, a = 0, c, d;
+
+  for( var i = 0; i < s.length; i++ ) {
+    if ( ( c = base64list.indexOf(s.charAt(i)) ) < 0 )
+      continue;
+    a = (a<<6)|(c&63);
+    if ( ( p += 6 ) >= 0 ) {
+      d = (a>>p)&255;
+      if ( c != 64 )
+        t += String.fromCharCode(d);
+      a &= 63;
+      p -= 8;
+    }
+  }
+  return t;
+}
+
+},{}],8:[function(require,module,exports){
 /*
  * Authantication
  * @param mode: private || public
  */
 var jQuery = require('jquery');
+var DashboardModel = require('./dashboardModel');
 
 module.exports = function(cb) {
 	var hash = window.location.hash.substr(1);
 	if(hash) {
 		//private
 		var params = parsequery(hash);
-		init(params.app_id, params.mode, cb);
+    var dashboardModel = new DashboardModel(params.app_id, params.mode, params.db);
+		init(dashboardModel, cb);
 	}else{
 		cb(new Error("app_id not found"));
 	}
@@ -19097,23 +19260,23 @@ function getItem(key) {
     }
 }
 
-function init(app_id, mode, cb) {
-    var milkcocoa = new MilkCocoa(app_id + ".mlkcca.com");
-    if(mode == 'private') {
-        var pathlist = getItem('mlkcca.'+app_id+'.pathlist');
+function init(dashboardModel, cb) {
+    var milkcocoa = new MilkCocoa(dashboardModel.app_id + ".mlkcca.com");
+    if(dashboardModel.mode == 'private') {
+        var pathlist = getItem('mlkcca.'+dashboardModel.app_id+'.pathlist');
         milkcocoa.user(function(err, user) {
             if(!user) {
                 get_admin_token(function(data) {
                     milkcocoa.authAsAdmin(data.token, function() {
-                      cb(null, milkcocoa, pathlist);
+                      cb(null, milkcocoa, pathlist, dashboardModel);
                     });
                 })
             }else{
-              cb(null, milkcocoa, pathlist);
+              cb(null, milkcocoa, pathlist, dashboardModel);
             }
         });
     }else{
-    	cb(null, milkcocoa);
+    	cb(null, milkcocoa, undefined, dashboardModel);
     }
 }
 
@@ -19169,13 +19332,6 @@ function get_pathlist(url, app_id, cb) {
     });        
 }
 
-
-function query2string(params) {
-	return Object.keys(params).map(function(k) {
-		return k + '=' + params[k]
-	}).join('&');
-}
-
 function parsequery(str) {
 	var params = {};
 	str.split('&').forEach(function(s) {
@@ -19185,38 +19341,70 @@ function parsequery(str) {
 	return params;
 }
 
-},{"jquery":2}],7:[function(require,module,exports){
+
+
+
+
+
+
+
+},{"./dashboardModel":7,"jquery":2}],9:[function(require,module,exports){
 var CreatePanelModal = require('./CreatePanelModal');
 var PanelWrapper = require('./core/panel');
 var plugins = require('./plugins');
 var load = require('./load');
+var SettingModal = require('./SettingModal');
 
 window.addEventListener('load', function(e) {
-	load(function(err, milkcocoa, pathlist) {
+	load(function(err, milkcocoa, pathlist, dashboardModel) {
 		if(err) {
 			throw err;
 		}
-		init(milkcocoa, pathlist);
+		init(milkcocoa, pathlist, dashboardModel);
 	});
 });
 
-function init(milkcocoa, pathlist) {
+function init(milkcocoa, pathlist, dashboardModel) {
 	var panelWrapper = new PanelWrapper('panel-wrapper');
 	var btn = document.getElementById('show-create-panel-modal-btn');
+	var shareBtn = document.getElementById('share-modal-btn');
+
 	btn.addEventListener('click', function(e) {
 		showCreatePanelModal(pathlist, function(values) {
-			var panel = new PanelWrapper.Panel();
-			panel.setTitle(values.name);
-			var widgets = plugins.widgets.filter(function(w) {return w.name==values.type;});
-			if(widgets[0]) {
-				var datastore = milkcocoa.dataStore(values.datastore);
-				var w = new widgets[0].widget(datastore);
-				panel.setBody(w.getEl());
-			}
-			panelWrapper.append(panel);
+			dashboardModel.addWidget(values.name, values.datastore, values.type);
+			createWidget(values.name, values.datastore, values.type, values);
 		});
-	});	
+	});
+	shareBtn.addEventListener('click', function(e) {
+		dashboardModel.share();
+	});
+	dashboardModel.dashboard.forEach(function(d) {
+		createWidget(d.name, d.datastore, d.type, d);
+	});
+
+	function createWidget(name, datastoreName, type, params) {
+		var panel = new PanelWrapper.Panel();
+		panel.setTitle(name);
+		var widgets = plugins.widgets.filter(function(w) {return w.name==type;});
+		if(widgets[0]) {
+			var datastore = milkcocoa.dataStore(datastoreName);
+			var w = new widgets[0].widget(datastore);
+			panel.setBody(w.getEl());
+			panel.onSetting(function() {
+				var modal = new SettingModal();
+				modal.setSettingsSchema(w.settings());
+				modal.ok(function(r) {
+					console.log(r);
+					w.onSettingsUpdated(r);
+				})
+				modal.open();
+			});
+		}
+		panelWrapper.append(panel);
+	}
+
 }
+
 
 function showCreatePanelModal(pathlist, cb) {
 	var widgetNames = plugins.widgets.map(function(w) {return w.name;});
@@ -19224,7 +19412,7 @@ function showCreatePanelModal(pathlist, cb) {
 	modal.ok(cb);
 	modal.open();
 }
-},{"./CreatePanelModal":3,"./core/panel":5,"./load":6,"./plugins":8}],8:[function(require,module,exports){
+},{"./CreatePanelModal":3,"./SettingModal":4,"./core/panel":6,"./load":8,"./plugins":10}],10:[function(require,module,exports){
 var TextWidget = require('./widgets/TextWidget');
 var ChartWidget = require('./widgets/ChartWidget');
 
@@ -19237,7 +19425,7 @@ module.exports = {
 		widget : ChartWidget
 	}]
 }
-},{"./widgets/ChartWidget":9,"./widgets/TextWidget":10}],9:[function(require,module,exports){
+},{"./widgets/ChartWidget":11,"./widgets/TextWidget":12}],11:[function(require,module,exports){
 var d3 = require('d3');
 
 function ChartWidget(datastore) {
@@ -19245,17 +19433,7 @@ function ChartWidget(datastore) {
 	this.data = [];
 	this.elem = document.createElement('div');
 
-	var keyForm = document.createElement('div');
-	var keyLabel = document.createElement('span');
-	this.input = document.createElement('input');
-	this.input.type = 'text';
-	keyLabel.textContent = 'Value:';
-	keyForm.appendChild(keyLabel);
-	keyForm.appendChild(this.input);
-	this.elem.appendChild(keyForm);
-	this.input.addEventListener('change', function(e) {
-		that.updateDraw();
-	});
+	this.value = null;
 
 	this.datastore = datastore;
 	var history = this.datastore.history();
@@ -19272,10 +19450,24 @@ function ChartWidget(datastore) {
 	this.initChart();
 }
 
+ChartWidget.prototype.settings = function() {
+	return {
+		'value' : {
+			type : 'text',
+			value : this.value
+		}
+	};
+}
+
+ChartWidget.prototype.onSettingsUpdated = function(result) {
+	this.value = result.value;
+	this.updateDraw();
+}
+
+
 ChartWidget.prototype.refersh = function() {
 	this.initialDraw();
 }
-
 
 ChartWidget.prototype.getEl = function() {
 	return this.elem;
@@ -19285,15 +19477,15 @@ ChartWidget.prototype.getEl = function() {
 // datastoreのデータを、描画用のデータに変換する
 ChartWidget.prototype.get_graph_data = function(data){
 	var that = this;
-	if(data[0] && this.input.value=='') {
+	if(data[0] && this.value==null) {
 		var filterd = Object.keys(data[0].value).filter(function(k) {return ((typeof data[0].value[k]) == 'number');});
 		var key = filterd[0];
-		this.input.value = key;
+		this.value = key;
 	}
 	return data.map(function(d) {
 		return {
 			date : new Date(d.timestamp),
-			value : d.value[that.input.value]
+			value : d.value[that.value]
 		};
 	});
 }
@@ -19423,7 +19615,7 @@ ChartWidget.prototype.updateDraw = function() {
 
 module.exports = ChartWidget;
 
-},{"d3":1}],10:[function(require,module,exports){
+},{"d3":1}],12:[function(require,module,exports){
 function TextWidget(datastore) {
 	var that = this;
 	this.elem = document.createElement('div');
@@ -19433,9 +19625,17 @@ function TextWidget(datastore) {
 	});
 }
 
+TextWidget.prototype.settings = function() {
+	return {
+	};
+}
+
+TextWidget.prototype.onSettingsUpdated = function(result) {
+}
+
 TextWidget.prototype.getEl = function() {
 	return this.elem;
 }
 
 module.exports = TextWidget;
-},{}]},{},[7]);
+},{}]},{},[9]);
