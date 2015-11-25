@@ -1,7 +1,7 @@
 
 function Modal(options) {
 	var that = this;
-	this.options = options;
+	this.options = options || {};
 	var elem = document.createElement('div');
 	var overlap = window.document.createElement("div");
 	overlap.classList.add('jsmodal__screen');
