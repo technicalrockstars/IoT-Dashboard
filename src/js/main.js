@@ -3,6 +3,7 @@ var PanelWrapper = require('./core/panel');
 var plugins = require('./plugins');
 var load = require('./load');
 var SettingModal = require('./SettingModal');
+var SpanEditor = require('./SpanEditor');
 
 window.addEventListener('load', function(e) {
 	load(function(err, milkcocoa, pathlist, dashboardModel) {
@@ -14,6 +15,7 @@ window.addEventListener('load', function(e) {
 });
 
 function init(milkcocoa, pathlist, dashboardModel) {
+	var spanEditor = new SpanEditor();
 	var panelWrapper = new PanelWrapper('panel-wrapper');
 	var btn = document.getElementById('show-create-panel-modal-btn');
 	var shareBtn = document.getElementById('share-modal-btn');
@@ -47,6 +49,9 @@ function init(milkcocoa, pathlist, dashboardModel) {
 					w.onSettingsUpdated(r);
 				})
 				modal.open();
+			});
+			spanEditor.on('change', function(e) {
+				w.onSpanUpdated(e.start, e.end);
 			});
 		}
 		panelWrapper.append(panel);

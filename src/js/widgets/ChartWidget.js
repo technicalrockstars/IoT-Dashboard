@@ -36,6 +36,16 @@ ChartWidget.prototype.onSettingsUpdated = function(result) {
 	this.updateDraw();
 }
 
+ChartWidget.prototype.onSpanUpdated = function(start, end) {
+	var that = this;
+	var history = this.datastore.history();
+	history.span(start.getTime(), end.getTime()).on('data', function(data) {
+		that.data = data;
+		that.updateDraw();
+	});
+	history.run();
+}
+
 
 ChartWidget.prototype.refersh = function() {
 	this.initialDraw();

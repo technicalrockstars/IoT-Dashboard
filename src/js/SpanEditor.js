@@ -1,33 +1,21 @@
+var EventEmitter = require('eventemitter2').EventEmitter2;
+var util = require('util');
 var jQuery = require('jquery');
 require('jquery-ui');
 require('../../thirdparty/jquery.comiseo.daterangepicker');
 
 function SpanEditor() {
+    EventEmitter.call(this);
     var that = this;
-	// var dates = jQuery( '#span-configure-from, #span-configure-to' ) . datepicker( {
- //        showAnim: 'clip',
- //        changeMonth: true,
- //        numberOfMonths: 3,
- //        showCurrentAtPos: 1,
- //        onSelect: function( selectedDate ) {
- //            var option = this.id == 'span-configure-from' ? 'minDate' : 'maxDate',
- //                instance = jQuery( this ).data( 'datepicker' ),
- //                date = jQuery.datepicker.parseDate(
- //                    instance.settings.dateFormat || jQuery.datepicker._defaults.dateFormat,
- //                    selectedDate,
- //                    instance.settings );
- //            dates.not( this ).datepicker( 'option', option, date );
- //            if(option == 'minDate') that.start = date;
- //            else if(option == 'maxDate') that.end = date;
- //        }
- //    } );
-
     var dates = jQuery("#span-configure-input").daterangepicker({
         numberOfMonths: 3,
         onChange: function() {
             that.start = getRange().start;
             that.end = getRange().end;
-            that.onSpanConfiguredListener(that.start, that.end)
+            that.emit('change', {
+                start : that.start,
+                end : that.end
+            });
         }
     });
 
@@ -57,6 +45,8 @@ function SpanEditor() {
     // jQuery('#span-configure-to').val((today.getMonth()+1) +'/'+ today.getDate() +'/'+ (today.getYear()+1900));
     // jQuery('#span-configure-from').val((yesterday.getMonth()+1) +'/'+ yesterday.getDate() +'/'+ (yesterday.getYear()+1900));
 }
+
+util.inherits(SpanEditor, EventEmitter);
 
 SpanEditor.prototype.getStart = function() {
     return this.start;

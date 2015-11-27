@@ -9,3 +9,8 @@
 @import "components/modal.css";
 @import "components/panel.css";
 @import "components/chart.css";
+
+@import "thirdparty/jquery.comiseo.daterangepicker.css";
+@import "thirdparty/jquery-ui.css";
+@import "thirdparty/jquery.ui.theme.css";
+

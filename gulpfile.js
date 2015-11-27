@@ -123,6 +123,7 @@ gulp.task('watch',function(){
 
 var tasks = [
   'move-html',
+  'move-img',
   'css',
   'script',
   'serve',
