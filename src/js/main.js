@@ -20,6 +20,10 @@ function init(milkcocoa, pathlist, dashboardModel) {
 	var btn = document.getElementById('show-create-panel-modal-btn');
 	var shareBtn = document.getElementById('share-modal-btn');
 
+	if(dashboardModel.mode == 'public') {
+		var admin_header = document.getElementById('admin-header');
+		admin_header.style.display = 'none';
+	}
 	btn.addEventListener('click', function(e) {
 		showCreatePanelModal(pathlist, function(values) {
 			dashboardModel.addWidget(values.name, values.datastore, values.type);

@@ -32,8 +32,12 @@ function init(dashboardModel, cb) {
         var pathlist = getItem('mlkcca.'+dashboardModel.app_id+'.pathlist');
         milkcocoa.user(function(err, user) {
             if(!user) {
-                get_admin_token(function(data) {
-                    milkcocoa.authAsAdmin(data.token, function() {
+                get_admin_token(function(err, data) {
+                    if(err) {
+                        cb(null, milkcocoa, pathlist, dashboardModel);
+                        return;
+                    }
+                    milkcocoa.authAsAdmin(data.token, function(err, user) {
                       cb(null, milkcocoa, pathlist, dashboardModel);
                     });
                 })
@@ -41,7 +45,7 @@ function init(dashboardModel, cb) {
               cb(null, milkcocoa, pathlist, dashboardModel);
             }
         });
-    }else{
+    }else if(dashboardModel.mode == 'public'){
     	cb(null, milkcocoa, undefined, dashboardModel);
     }
 }
@@ -65,10 +69,10 @@ function get_admin_token(cb) {
 
           },
           success: function(response){
-                cb(response);
+                cb(null, response);
           },
           error: function (xhr) {
-                cb(xhr.responseJSON);
+                cb(xhr.statusText, xhr.responseJSON);
           }
     });        
 }
