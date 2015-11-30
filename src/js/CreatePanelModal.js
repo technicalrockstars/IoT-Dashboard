@@ -3,7 +3,7 @@ var Modal = require('./core/modal');
 function CreatePanelModal(options) {
 	this.inputs = {};
 	this.options = options;
-	this.modal = new Modal();
+	this.modal = new Modal({title: 'Create Panel'});
 	this.modal.setBody( this.createBody() );
 }
 
@@ -29,7 +29,7 @@ CreatePanelModal.prototype.createBody = function() {
 			}
 		});
 	body.appendChild(this.createSelectBox('Type', {options : widgetNames, defaultValue : 'text'}));
-	
+
 
 	return body;
 }
@@ -37,13 +37,21 @@ CreatePanelModal.prototype.createBody = function() {
 CreatePanelModal.prototype.createTextBox = function(name, options) {
 	var that = this;
 	var form = document.createElement('div');
+	form.classList.add('jsmodal__formRow');
 	var label = document.createElement('span');
+	label.classList.add('jsmodal__formLabel');
+
+	var content = document.createElement('div');
+	content.classList.add('jsmodal__formContent');
 	var input = document.createElement('input');
+	input.classList.add('jsmodal__formInput');
+	content.appendChild(input);
+
 	label.textContent = name;
 	input.type = 'text';
 	input.value = options.defaultValue || '';
 	form.appendChild(label);
-	form.appendChild(input);
+	form.appendChild(content);
 	that.inputs[name] = input;
 	return form;
 }
@@ -51,9 +59,18 @@ CreatePanelModal.prototype.createTextBox = function(name, options) {
 CreatePanelModal.prototype.createSelectBox = function(name, options) {
 	var that = this;
 	var form = document.createElement('div');
+	form.classList.add('jsmodal__formRow');
 	var label = document.createElement('span');
+	label.classList.add('jsmodal__formLabel');
+
 	var selectElem = document.createElement('select');
+	selectElem.classList.add('jsmodal__formInput');
 	label.textContent = name;
+
+	var content = document.createElement('div');
+	content.classList.add('jsmodal__formContent');
+	content.appendChild(selectElem);
+
 	options.options.forEach(function(o) {
 		var optionElem = document.createElement('option');
 		optionElem.textContent = o.displayText;
@@ -62,7 +79,7 @@ CreatePanelModal.prototype.createSelectBox = function(name, options) {
 	});
 	selectElem.value = options.defaultValue;
 	form.appendChild(label);
-	form.appendChild(selectElem);
+	form.appendChild(content);
 	that.inputs[name] = selectElem;
 	return form;
 }

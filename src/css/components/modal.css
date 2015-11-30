@@ -59,21 +59,20 @@
 .jsmodal__formLabel {
 	display: block;
 	float: left;
-	width: 60px;
+	width: 80px;
 	font-weight: bold;
 	position: relative;
 	top: 4px;
 }
 
 .jsmodal__formContent {
-	margin-left: 70px;
+	margin-left: 100px;
 }
 
 .jsmodal__formInput {
 	width: 100%;
 	border-radius: 3px;
-	padding-left: 8px;
-	padding-right: 8px;
+	padding: 2px 8px;
 	&:focus{
 		border-color: $main_color;
 		box-shadow: 0 0 3px 0 $main_color_trans;

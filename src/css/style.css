@@ -4,13 +4,40 @@
    Foundation
    ========================================================================== */
 
-@import "layout.css";
+@import "foundation/normalize.css";
+@import "foundation/base.css";
+
+
+/* ==========================================================================
+   Thirdparty
+   ========================================================================== */
+
+@import "thirdparty/font-awesome.css";
+@import "thirdparty/jquery.comiseo.daterangepicker.css";
+@import "thirdparty/jquery-ui.css";
+@import "thirdparty/kite.min.css";
+
+
+/* ==========================================================================
+   Components
+   ========================================================================== */
 
 @import "components/modal.css";
 @import "components/panel.css";
 @import "components/chart.css";
+@import "components/jquery.ui.ss-theme.css";
 
-@import "thirdparty/jquery.comiseo.daterangepicker.css";
-@import "thirdparty/jquery-ui.css";
-@import "thirdparty/jquery.ui.theme.css";
 
+/* ==========================================================================
+   Projects
+   ========================================================================== */
+
+@import "layout.css";
+
+
+/* ==========================================================================
+   Utility
+   ========================================================================== */
+
+@import "utility/headline.css";
+@import "utility/float.css";

@@ -1,3 +1,7 @@
+.chart{
+  width: 100%;
+
+}
 .chart-form{
 	padding: 2px 12px;
 }
@@ -6,4 +10,39 @@
 	fill: none;
 	stroke: #f0f070;
 	strokeWidth: 4;
+}
+.area{
+  fill: rgba(240,152,25,.25);
+  stroke: rgba(240,152,25,.25);
+}
+.line{
+  stroke: #F09819;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-position: inside;
+}
+.axis{
+  path{
+    fill: none;
+  }
+}
+.x.axis{
+  text{
+    font-size: 12px;
+    fill: #999;
+  }
+}
+.y.axis{
+  text{
+    font-size: 12px;
+    fill: #999;
+  }
+}
+.axisback{
+  fill: #fff;
+  stroke-width: 0;
+}
+.axisline{
+  stroke: #999 !important;
 }

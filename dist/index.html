@@ -2,29 +2,32 @@
 <head>
 <meta charset="UTF-8">
 <title>Second Sight</title>
+<link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-<div class="ss-wrapper">
+<div class="container ss-wrapper">
+
   <div class="ss-header">
-    <h1>Second Sight</h1>
-    <!-- admin header -->
-    <div id="admin-header">
-      <button id="show-create-panel-modal-btn">
-        Add Panel
+    <h1 class="u-headline ss-header__title">Second Sight</h1>
+    <button id="share-modal-btn" class="ss-header__share">
+      <i class="fa fa-share-alt" aria-hidden="true"></i> Share URL
+    </button>
+    <div id="admin-header" class="u-fll">
+      <button id="show-create-panel-modal-btn" class="ss-header__button">
+        <i class="fa fa-plus-circle" aria-hidden="true"></i> Add Panel
       </button>
-      <button id="share-modal-btn">
-        Share
-      </button>
-    </div>
-    <!-- viewer header -->
+    </div><!-- #admin-header -->
+
     <div id="viewer-header">
       <div id="span-configure" class="u-flr">
         <input id="span-configure-input" name="span-configure-input">
       </div>
-    </div>
-	</div>
-  <div id ="panel-wrapper" class="ss-container">
+    </div><!-- #viewer-header -->
+	</div><!-- .ss-header -->
+
+
+  <div id="panel-wrapper" class="kite ss-panel">
 	</div>
 </div>
 <script src="https://cdn.mlkcca.com/v2.0.0/milkcocoa.js"></script>

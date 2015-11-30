@@ -7,8 +7,11 @@ function PanelWrapper(id) {
 PanelWrapper.prototype.append = function(panel) {
 	if((this.panels.length % 2) == 0) {
 		var section = document.createElement('div');
-		section.classList.add('ss-panel-section');
-		section.classList.add('ss-panel-group');
+		section.classList.add('ss-panel__section');
+		section.classList.add('ss-panel__group');
+		section.classList.add('kite');
+		section.classList.add('kite--grid');
+		section.classList.add('has-gutter');
 		this.sections.push(section);
 		this.elem.appendChild(section);
 	}
@@ -20,19 +23,29 @@ PanelWrapper.prototype.append = function(panel) {
 
 function Panel() {
 	var that = this;
+
 	this.elem = document.createElement('div');
-	this.elem.classList.add('ss-panel-col');
-	this.elem.classList.add('ss-panel-span_1_of_3');
+	this.elem.classList.add('kite__item');
+	this.elem.classList.add('is-12of12');
+
+	var canvas = document.createElement('div');
+	canvas.classList.add('ss-panel__col');
+
 	var header = document.createElement('div');
-	header.classList.add('ss-panel-header');
+	header.classList.add('ss-panel__header');
 	this.body = document.createElement('div');
-	this.body.classList.add('ss-panel-body');
-	this.elem.appendChild(header);
-	this.elem.appendChild(this.body);
+	this.body.classList.add('ss-panel__body');
+
+	canvas.appendChild(header);
+	canvas.appendChild(this.body);
+	this.elem.appendChild(canvas);
 
 	this.title = document.createElement('span');
+	this.title.classList.add('ss-panel__title')
+
 	var settingBtn = document.createElement('button');
-	settingBtn.textContent = 'Setting';
+	settingBtn.innerHTML = '<i class="fa fa-cog" aria-label="Settings" title="Settings"></i>';
+	settingBtn.classList.add('ss-panel__settingBtn');
 	settingBtn.addEventListener('click', function(e) {
 		that.onSettingListener();
 	});

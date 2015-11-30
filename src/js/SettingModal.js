@@ -23,13 +23,21 @@ SettingModal.prototype.setSettingsSchema = function(schema) {
 SettingModal.prototype.createTextBox = function(name, options) {
 	var that = this;
 	var form = document.createElement('div');
+	form.classList.add('jsmodal__formRow');
 	var label = document.createElement('span');
+	label.classList.add('jsmodal__formLabel');
+
+	var content = document.createElement('div');
+	content.classList.add('jsmodal__formContent');
 	var input = document.createElement('input');
+	input.classList.add('jsmodal__formInput');
+	content.appendChild(input);
+
 	label.textContent = name;
 	input.type = 'text';
 	input.value = options.defaultValue || '';
 	form.appendChild(label);
-	form.appendChild(input);
+	form.appendChild(content);
 	that.inputs[name] = input;
 	return form;
 }

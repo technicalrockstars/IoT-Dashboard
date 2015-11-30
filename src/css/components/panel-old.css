@@ -1,0 +1,78 @@
+
+/*  SECTIONS  ============================================================================= */
+
+/*  GROUPING  ============================================================================= */
+
+
+.ss-panel-group:before,
+.ss-panel-group:after {
+    content:"";
+    display:table;
+}
+.ss-panel-group:after {
+    clear:both;
+}
+.ss-panel-group {
+    zoom:1; /* For IE 6/7 (trigger hasLayout) */
+}
+
+/*  GRID COLUMN SETUP   ==================================================================== */
+
+.ss-panel-col {
+	display: block;
+	float:left;
+	margin: 1% 0 1% 1.6%;
+}
+
+.ss-panel-col:first-child { margin-left: 0; } /* all browsers except IE6 and lower */
+
+
+/*  REMOVE MARGINS AS ALL GO FULL WIDTH AT 480 PIXELS */
+
+@media only screen and (max-width: 480px) {
+	.ss-panel-col {
+		margin: 1% 0 1% 0%;
+	}
+}
+
+/*  GRID OF THREE   ============================================================================= */
+
+
+.ss-panel-span_3_of_3 {
+	width: 100%;
+}
+
+.ss-panel-span_2_of_3 {
+	width: 66.13%;
+}
+
+.ss-panel-span_1_of_3 {
+	width: 480px;
+}
+
+
+/*  GO FULL WIDTH AT LESS THAN 480 PIXELS */
+/*
+@media only screen and (max-width: 480px) {
+	.ss-panel-span_3_of_3 {
+		width: 100%;
+	}
+	.ss-panel-span_2_of_3 {
+		width: 100%;
+	}
+	.ss-panel-span_1_of_3 {
+		width: 100%;
+	}
+}
+*/
+
+
+.ss-panel-header {
+	background-color: #333;
+	padding: 2px 12px;
+}
+
+.ss-panel-body {
+	background-color: #444;
+	min-height: 200px;
+}
